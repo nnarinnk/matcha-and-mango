@@ -1,79 +1,27 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>นักอ่านใจระดับโลก</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 110%;
-            height: 110%;
-            background: url('https://source.unsplash.com/1920x1080/?space,stars') no-repeat center center/cover;
-            transition: transform 0.1s ease-out;
-            z-index: -1;
-        }
-        .container {
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border-radius: 12px;
-            animation: fadeIn 1s ease-out;
-            transition: background-color 0.3s, color 0.3s;
-            position: relative;
-            z-index: 1;
-        }
-        .theme-dark .container {
-            background-color: rgba(52, 58, 64, 0.9);
-            color: white;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .theme-toggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 2;
-        }
-    </style>
+    <title>Vulnerable Static Web App</title>
 </head>
-<body onmousemove="moveBackground(event)">
-    <div class="background" id="background"></div>
-    <button class="btn btn-secondary theme-toggle" onclick="toggleTheme()">🌗 สลับโหมด</button>
-    <div class="container">
-        <h1 class="mb-4">🔮 นักอ่านใจระดับโลก 🔮</h1>
-        <p class="lead">โปรดนึกถึงตัวเลข 1-10 ในใจ</p>
-        <input type="number" id="userNumber" class="form-control mb-3" min="1" max="10" placeholder="พิมพ์เลขที่คุณคิด">
-        <button class="btn btn-primary btn-lg" onclick="startMindReading()">อ่านใจเดี๋ยวนี้!</button>
-    </div>
-
-<script>
-    function toggleTheme() {
-        document.body.classList.toggle('theme-dark');
-    }
-
-    function moveBackground(event) {
-        const background = document.getElementById('background');
-        let x = (event.clientX / window.innerWidth) * 20 - 10;
-        let y = (event.clientY / window.innerHeight) * 20 - 10;
-        background.style.transform = `translate(${x}px, ${y}px)`;
-    }
-</script>
+<body>
+    <h1>Welcome to the Vulnerable Web App</h1>
+    <p>Enter your name and see it displayed below:</p>
+    
+    <form>
+        <input type="text" id="name" placeholder="Enter your name">
+        <button type="button" onclick="displayInput()">Submit</button>
+    </form>
+    
+    <h2>Output:</h2>
+    <div id="output"></div>
+    
+    <script>
+        function displayInput() {
+            var userInput = document.getElementById("name").value;
+            document.getElementById("output").innerHTML = "Hello, " + userInput;
+        }
+    </script>
 </body>
 </html>
