@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นักอ่านใจระดับโลก</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 12px;
+            animation: fadeIn 1s ease-out;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .theme-dark {
+            background-color: #212529;
+            color: white;
+        }
+        .theme-dark .container {
+            background-color: #343a40;
+            color: white;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+            border-radius: 10px;
+        }
+        #loadingBar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress {
+            height: 100%;
+            width: 0;
+            background-color: #198754;
+            transition: width 0.2s ease;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn btn-secondary theme-toggle" onclick="toggleTheme()">🌗 สลับโหมด</button>
+
+<div class="container">
+    <h1 class="mb-4">🔮 นักอ่านใจระดับโลก 🔮</h1>
+    <p class="lead">โปรดนึกถึงตัวเลข 1-10 ในใจ</p>
+    <input type="number" id="userNumber" class="form-control mb-3" min="1" max="10" placeholder="พิมพ์เลขที่คุณคิด">
+    <button class="btn btn-primary btn-lg" onclick="startMindReading()">อ่านใจเดี๋ยวนี้!</button>
+</div>
+
+<div id="loadingPopup" class="popup">
+    <h4>📡 กำลังเชื่อมต่อคลื่นสมอง...</h4>
+    <div id="loadingBar" class="mt-3">
+        <div id="progress"></div>
+    </div>
+    <p id="loadingMessage" class="mt-3"></p>
+</div>
+
+<div id="resultPopup" class="popup">
+    <h4>✅ วิเคราะห์เสร็จสิ้น!</h4>
+    <p id="resultMessage"></p>
+    <button class="btn btn-success" onclick="closePopup('resultPopup')">ปิด</button>
+</div>
+
+<script>
+    function toggleTheme() {
+        document.body.classList.toggle('theme-dark');
+    }
+
+    function startMindReading() {
+        const userNumber = document.getElementById('userNumber').value;
+        if (userNumber < 1 || userNumber > 10) {
+            alert('กรุณาใส่เลขระหว่าง 1 ถึง 10 นะครับ');
+            return;
+        }
+
+        showPopup('loadingPopup');
+        document.getElementById('progress').style.width = '0%';
+        document.getElementById('loadingMessage').innerText = '';
+
+        let progress = 0;
+        let messages = [
+            'ตรวจจับสัญญาณสมองขั้นสูงสุด... 🧠',
+            'เชื่อมต่อจักรวาลคู่ขนาน... 🌌',
+            'แฮ็กข้อมูลใต้สำนึก... 💻',
+            'ถอดรหัสเลขในใจ... 📥'
+        ];
+
+        let messageIndex = 0;
+
+        const interval = setInterval(() => {
+            progress += 5;
+            document.getElementById('progress').style.width = progress + '%';
+
+            if (progress % 25 === 0 && messageIndex < messages.length) {
+                document.getElementById('loadingMessage').innerText = messages[messageIndex];
+                messageIndex++;
+            }
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => revealMindReading(userNumber), 500);
+            }
+        }, 200);
+    }
+
+    function revealMindReading(number) {
+        closePopup('loadingPopup');
+
+        const funnyMessages = [
+            `เรารู้! คุณนึกถึงเลข ${number} ใช่มั้ยล่ะ 😎`,
+            `ไม่ผิดแน่ เลข ${number} มันลอยมาเลย! 🔮`,
+            `คลื่นสมองชัดมาก เลข ${number} นี่แหละ! 📡`,
+            `สมองคุณเหมือนกระดาษเปล่า เลข ${number} อ่านง่ายมาก! 📖`
+        ];
+
+        const randomIndex = Math.floor(Math.random() * funnyMessages.length);
+        document.getElementById('resultMessage').innerText = funnyMessages[randomIndex];
+        showPopup('resultPopup');
+    }
+
+    function showPopup(id) {
+        document.getElementById(id).style.display = 'block';
+    }
+
+    function closePopup(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
