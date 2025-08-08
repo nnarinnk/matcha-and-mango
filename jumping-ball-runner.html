@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Jumping Ball Runner</title>
+<style>
+  html, body { margin:0; overflow:hidden; height:100%; background:#222; }
+  #game { position:relative; width:100%; height:100%; }
+  .bg { position:absolute; top:0; left:0; width:200%; height:100%; background-repeat:repeat-x; }
+  #bg1 { background-image: linear-gradient(to bottom, #9b5de5, #f15bb5); opacity:0.6; }
+  #bg2 { background-image: linear-gradient(to bottom, #00bbf9, #00f5d4); opacity:0.6; }
+  canvas { position:relative; z-index:2; display:block; }
+  #ui { position:absolute; top:10px; left:10px; z-index:3; color:#fff; font-family:'Comic Sans MS',cursive,sans-serif; font-size:20px; }
+  #retry { display:none; margin-top:10px; font-size:18px; }
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="bg1" class="bg"></div>
+  <div id="bg2" class="bg"></div>
+  <canvas id="canvas"></canvas>
+  <div id="ui">
+    <div id="score">Score: 0 High: 0</div>
+    <button id="retry">Retry</button>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+const ground = H - 80;
+
+const player = { x:100, y:ground, r:25, vy:0, jumping:false };
+let obstacles = [];
+let frame = 0;
+let speed = 6;
+let score = 0;
+let high = parseInt(localStorage.getItem('jbr-high')||'0');
+let gameOver = false;
+
+const scoreEl = document.getElementById('score');
+const retryBtn = document.getElementById('retry');
+const bg1 = document.getElementById('bg1');
+const bg2 = document.getElementById('bg2');
+let bg1pos = 0, bg2pos = 0;
+
+function playNotes(notes){
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audio = new AudioCtx();
+  let t = audio.currentTime;
+  notes.forEach(n => {
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = 'square';
+    osc.frequency.value = n.freq;
+    osc.connect(gain);
+    gain.connect(audio.destination);
+    gain.gain.setValueAtTime(0.1, t);
+    osc.start(t);
+    osc.stop(t + n.dur);
+    t += n.dur;
+  });
+}
+function jumpSound(){ playNotes([{freq:500,dur:0.1},{freq:700,dur:0.1}]); }
+function crashSound(){ playNotes([{freq:200,dur:0.2},{freq:100,dur:0.2},{freq:50,dur:0.3}]); }
+
+function jump(){
+  if(!gameOver && !player.jumping){
+    player.vy = -15;
+    player.jumping = true;
+    jumpSound();
+  }
+  if(gameOver){ reset(); }
+}
+window.addEventListener('keydown', e => { if(e.code === 'Space') jump(); });
+window.addEventListener('mousedown', jump);
+window.addEventListener('touchstart', jump);
+retryBtn.addEventListener('click', reset);
+
+function spawnObstacle(){
+  const size = 30 + Math.random()*30;
+  obstacles.push({ x:W+size, y:ground, size });
+}
+
+function reset(){
+  obstacles = [];
+  frame = 0;
+  speed = 6;
+  score = 0;
+  gameOver = false;
+  player.y = ground;
+  player.vy = 0;
+  player.jumping = false;
+  retryBtn.style.display = 'none';
+}
+
+function update(){
+  ctx.clearRect(0,0,W,H);
+
+  bg1pos -= speed*0.2; bg2pos -= speed*0.5;
+  bg1.style.backgroundPosition = `${bg1pos}px 0`;
+  bg2.style.backgroundPosition = `${bg2pos}px 0`;
+
+  speed += 0.002;
+  frame++;
+
+  if(frame % Math.floor(150 - speed*8) === 0) spawnObstacle();
+
+  for(let i=obstacles.length-1;i>=0;i--){
+    const o = obstacles[i];
+    o.x -= speed;
+    ctx.fillStyle = '#ff006e';
+    ctx.fillRect(o.x, o.y, o.size, o.size);
+    if(o.x < player.x + player.r && o.x + o.size > player.x - player.r &&
+       o.y < player.y + player.r && o.y + o.size > player.y - player.r){
+      gameOver = true;
+      crashSound();
+      retryBtn.style.display = 'block';
+      if(score > high){ high = score; localStorage.setItem('jbr-high', high); }
+    }
+    if(o.x + o.size < 0){ obstacles.splice(i,1); score++; }
+  }
+
+  ctx.fillStyle = '#30f';
+  ctx.fillRect(0, ground + player.r, W, H - ground - player.r);
+
+  player.vy += 0.8;
+  player.y += player.vy;
+  if(player.y > ground){ player.y = ground; player.vy = 0; player.jumping = false; }
+
+  ctx.fillStyle = '#ffbe0b';
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.r, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(player.x-8, player.y-5, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(player.x+8, player.y-5, 5, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(player.x, player.y+5, 10, 0, Math.PI); ctx.stroke();
+
+  scoreEl.textContent = `Score: ${score} High: ${high}`;
+
+  if(!gameOver) requestAnimationFrame(update);
+}
+
+update();
+</script>
+</body>
+</html>
